@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<!-- import Polymer -->
+<link rel="import" href="../../packages/polymer/polymer.html">
+
+<!-- import core elements -->
+<link rel="import" href="../../packages/core_elements/core_animated_pages.html">
+<link rel="import" href="../../packages/core_elements/core_media_query.html">
+
+<!-- import chess-challenge elements-->
+<link rel="import" href="chess_challenge_board.html">
+<link rel="import" href="chess_challenge_login.html">
+
+<polymer-element fit name="chess-challenge-app" attributes="user" vertical layout>
+  <template>
+    <style>
+      :host {
+        overflow: hidden;
+        font-family: Roboto, sans-serif;
+        font-size: 16px;
+      }
+    </style>
+
+    <core-animated-pages selected="{{selected}}" flex>
+      <chess-challenge-login id="login" name="login" user="{{user}}" wide="{{wide}}"></chess-challenge-login>
+      <chess-challenge-board id="board" name="board" user="{{user}}"></chess-challenge-board>
+    </core-animated-pages>
+
+    <core-media-query query="min-width: 900px" queryMatches="{{wide}}"></core-media-query>
+
+  </template>
+
+  <script type="application/dart" src="chess_challenge_app.dart"></script>
+</polymer-element>
+

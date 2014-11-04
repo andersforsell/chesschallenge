@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<!-- import Polymer -->
+<link rel="import" href="../../packages/polymer/polymer.html">
+
+<!-- import core elements -->
+<link rel="import" href="../../packages/core_elements/core_item.html">
+<link rel="import" href="../../packages/core_elements/core_toolbar.html">
+<link rel="import" href="../../packages/core_elements/core_header_panel.html">
+<link rel="import" href="../../packages/core_elements/core_icons.html">
+<link rel="import" href="../../packages/core_elements/core_menu.html">
+<link rel="import" href="../../packages/core_elements/core_drawer_panel.html">
+<link rel="import" href="../../packages/core_elements/core_media_query.html">
+
+<!-- import paper elements -->
+<link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_input.html">
+<link rel="import" href="../../packages/paper_elements/paper_toast.html">
+<link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
+<link rel="import" href="../../packages/paper_elements/paper_dialog.html">
+
+<!-- import chess-board -->
+<link rel="import" href="../../packages/chessboard/chess_board.html">
+
+<polymer-element name="chess-challenge-board" attributes="user" layout vertical>
+  <template>
+    <style>
+     :host {
+        width: 100%;
+        height: 100%;
+        font-family: Roboto,sans-serif;
+        font-size: 16px;
+      }
+      #main_toolbar, #navheader {
+        height: 64px;
+        z-index: 1;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+      }
+
+      .avatar {
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      core-header-panel {
+        background: white;
+      }
+      paper-icon-button {
+        fill: #fff;
+      }
+      #navheader {
+        background-color: #03A9F4;
+      }
+      .leaderboard {
+        padding: 20px;
+      }
+      .leaderboard_name {
+        padding-left: 12px;
+      }
+      core-toolbar {
+        color: #fff;
+        background-color: #03A9F4;
+      }
+      core-icon {
+        display: inline-block;
+        vertical-align: middle;
+        background-repeat: no-repeat;
+      }
+      .content {
+        padding: 20px;
+      }
+      .pieceicon {
+        height: 28px;
+        width: 28px;
+      }
+      .player_info {
+        font-size: 13px;
+      }
+      /* drawer is always visible on a wide screen
+       so menu button isn't required */
+      core-drawer-panel:not([narrow]) #navicon {
+        display: none;
+      }
+      #try_again {
+        top: 80px;
+        left: 0px;
+        width: 100%;
+        background-color: #e51c23;
+        horizontal-align: middle;
+        font-size: 24px;
+      }
+    }
+    </style>
+    <core-drawer-panel id="drawerPanel" rightDrawer>
+      <core-header-panel drawer>
+        <core-toolbar id="navheader">
+          <div layout vertical style="overflow:hidden">
+          <template if="{{$['chess_board'].turn == 'White'}}">
+            <div layout horizontal center style="height:32px">
+              <img class="pieceicon" src="packages/chessboard/img/bP.png">
+              <div class="player_info" flex>{{getPlayerInfo('Black')}}</div>
+            </div>
+            <div layout horizontal center style="height:32px">
+              <img class="pieceicon" src="packages/chessboard/img/wP.png">
+              <div class="player_info" flex>{{getPlayerInfo('White')}}</div>
+            </div>
+          </template>
+          <template if="{{$['chess_board'].turn == 'Black'}}">
+            <div layout horizontal center style="height:32px">
+              <img class="pieceicon" src="packages/chessboard/img/wP.png">
+              <div class="player_info" flex>{{getPlayerInfo('White')}}</div>
+            </div>
+            <div layout horizontal center style="height:32px">
+              <img class="pieceicon" src="packages/chessboard/img/bP.png">
+              <div class="player_info" flex>{{getPlayerInfo('Black')}}</div>
+            </div>
+          </template>
+          </div>
+        </core-toolbar>
+        <div class="leaderboard">
+          <template repeat="{{ user in leaderBoard }}">
+            <div layout horizontal center style="height:40px">
+              <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
+              <div layout flex class="leaderboard_name">{{user.name}}</div>
+              <div class="leaderboard_score">{{user.score}}</div>
+            </div>
+          </template>
+        </div>
+      </core-header-panel>
+      <core-header-panel id="main_header_panel" main>
+        <core-toolbar id="main_toolbar" slide-down>
+          <core-icon icon="avatars:avatar-{{user.avatar}}" size="64" class="avatar" style="height: 64px; width: 64px;">
+          </core-icon>
+          <div flex class="user-name">{{user.name}}</div>
+          <div class="time">{{challengeTime}}</div>
+          <paper-icon-button id="stop_challenge" icon=cancel style="display:none" on-click="{{stopChallengeClicked}}"></paper-icon-button>
+          <paper-icon-button id="navicon" icon="menu"></paper-icon-button>
+        </core-toolbar>
+        <div class="content">
+          <paper-toast id="try_again" text="Try again..." duration="5000"></paper-toast>
+          <chess-board id="chess_board" on-move="{{onMove}}"></chess-board>
+        </div>
+      </core-header-panel>
+    </core-drawer-panel>
+    <paper-dialog id="result" style="width:80%" heading="Time: {{winnerTime}}" autoCloseDisabled>
+      <div class="leaderboard">
+        <template repeat="{{ user in leaderBoard }}">
+          <div layout horizontal center style="height:40px">
+            <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
+            <div layout flex class="leaderboard_name">{{user.name}}</div>
+            <div class="leaderboard_score">{{user.score}}</div>
+          </div>
+        </template>
+      </div>
+      <paper-button affirmative autofocus on-click={{resultOkClicked}}>OK</paper-button>
+    </paper-dialog>
+    <paper-dialog id="confirm_stop_challenge" heading="Quit Challenge?">
+      <paper-button dismissive>Cancel</paper-button>
+      <paper-button affirmative autofocus on-click="{{confirmStopChallengeClicked}}">OK</paper-button>
+    </paper-dialog>
+    <paper-dialog id="start_challenge" heading="New Challenge" autoCloseDisabled>
+      <p>{{startChallengeStatus}}</p>
+      <div class="leaderboard">
+        <template repeat="{{ user in startChallengeUsers }}">
+          <div layout horizontal center style="height:40px">
+            <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
+            <div layout flex class="leaderboard_name">{{user.name}}</div>
+          </div>
+        </template>
+      </div>
+      <paper-button affirmative autofocus on-click="{{startChallengeClicked}}">{{startChallengeBtnLabel}}</paper-button>
+    </paper-dialog>
+    <paper-toast id="challenge_pending" duration="10000" text="Get ready, challenge starts soon..."></paper-toast>
+    <paper-dialog id="connection_error" heading="Error" autoCloseDisabled>
+      <p>Server communication error.</p>
+      <paper-button affirmative autofocus on-click={{connectionRetryClicked}}>Retry</paper-button>
+    </paper-dialog>
+  </template>
+  <script type="application/dart" src="chess_challenge_board.dart"></script>
+</polymer-element>
+

@@ -1,0 +1,12 @@
+name: chesschallenge
+description: A sample Polymer application
+dependencies:
+  chessboard: any
+  core_elements: any
+  paper_elements: any
+  polymer: any
+  shelf: any
+  shelf_web_socket: any
+transformers:
+- polymer:
+    entry_points: web/index.html
