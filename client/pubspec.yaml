@@ -1,0 +1,10 @@
+name: client
+dependencies:
+  polymer: any
+  core_elements: any
+  paper_elements: any
+  chessboard: any
+
+transformers:
+- polymer:
+    entry_points: web/index.html

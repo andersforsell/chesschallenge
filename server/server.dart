@@ -1,10 +1,10 @@
+import 'dart:io';
+import 'dart:async';
+import 'dart:convert' show JSON, LATIN1, LineSplitter, UTF8;
+import 'dart:math';
+import 'package:client/shared.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
-import 'dart:io';
-import 'package:chesschallenge/shared.dart';
-import 'dart:convert' show JSON, LATIN1, LineSplitter, UTF8;
-import 'dart:async';
-import 'dart:math';
 
 Map<WebSocket, User> users = {};
 
@@ -53,11 +53,15 @@ Challenge findChallenge(webSocket) {
 }
 
 void main() {
+  // Server port assignment
+  var portEnv = Platform.environment['PORT'];
+  var port = portEnv != null ? int.parse(portEnv) : 9090;
+
   readGames('IB1419.pgn');
 
   var handler = webSocketHandler(onConnection);
 
-  shelf_io.serve(handler, InternetAddress.ANY_IP_V4, 4040).then((server) {
+  shelf_io.serve(handler, InternetAddress.ANY_IP_V4, port).then((server) {
     print('Serving at ws://${server.address.host}:${server.port}');
   });
 }

@@ -2,7 +2,7 @@
  */
 
 import 'package:polymer/polymer.dart';
-import 'package:chesschallenge/shared.dart';
+import 'package:client/shared.dart';
 
 /**
  * The Chess Challenge App component
@@ -13,7 +13,6 @@ class ChessChallengeApp extends PolymerElement {
   /// [true] if min-width is 900px
   @observable bool wide = true;
   @observable String selected = 'login';
-
 
   ChessChallengeApp.created() : super.created();
 
