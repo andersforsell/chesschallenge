@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:client/shared.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
+import 'package:path/path.dart' as path;
 
 Map<WebSocket, User> users = {};
 
@@ -69,7 +70,9 @@ void main() {
 void readGames(String fileName) {
   String pgn = '';
 
-  final file = new File(fileName);
+  final serverDir = path.dirname(Platform.script.toFilePath());
+  final file = new File(serverDir + '/' + fileName);
+
   Stream<List<int>> inputStream = file.openRead();
 
   inputStream.transform(
