@@ -1,10 +1,10 @@
 name: client
+author: Anders Forsell <aforsell1971@gmail.com>
 dependencies:
-  polymer: any
-  core_elements: any
-  paper_elements: any
-  chessboard: any
-
+  chessboard: '>=0.0.10 <0.1.0'
+  core_elements: '>=0.4.0 <0.5.0'
+  paper_elements: '>=0.5.0 <0.6.0'
+  polymer: '>=0.15.1 <0.16.0'
 transformers:
 - polymer:
     entry_points: web/index.html

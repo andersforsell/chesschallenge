@@ -1,8 +1,8 @@
 name: server
+author: Anders Forsell <aforsell1971@gmail.com>
 dependencies:
   client:
     path: ../client/
-  shelf: any
-  shelf_web_socket: any
-  path: any
-
+  path: '>=1.3.0 <1.4.0'
+  shelf: '>=0.5.5 <0.6.0'
+  shelf_web_socket: '>=0.0.1 <0.1.0'

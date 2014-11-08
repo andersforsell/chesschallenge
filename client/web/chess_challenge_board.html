@@ -132,7 +132,7 @@
           </core-icon>
           <div flex class="user-name">{{user.name}}</div>
           <div class="time">{{challengeTime}}</div>
-          <paper-icon-button id="stop_challenge" icon=cancel style="display:none" on-click="{{stopChallengeClicked}}"></paper-icon-button>
+          <paper-icon-button id="stop_challenge" icon=cancel style="display:none" on-tap="{{stopChallengeClicked}}"></paper-icon-button>
           <paper-icon-button id="navicon" icon="menu"></paper-icon-button>
         </core-toolbar>
         <div class="content">
@@ -151,11 +151,11 @@
           </div>
         </template>
       </div>
-      <paper-button affirmative autofocus on-click={{resultOkClicked}}>OK</paper-button>
+      <paper-button affirmative autofocus on-tap={{resultOkClicked}}>OK</paper-button>
     </paper-dialog>
     <paper-dialog id="confirm_stop_challenge" heading="Quit Challenge?">
       <paper-button dismissive>Cancel</paper-button>
-      <paper-button affirmative autofocus on-click="{{confirmStopChallengeClicked}}">OK</paper-button>
+      <paper-button affirmative autofocus on-tap="{{confirmStopChallengeClicked}}">OK</paper-button>
     </paper-dialog>
     <paper-dialog id="start_challenge" heading="New Challenge" autoCloseDisabled>
       <p>{{startChallengeStatus}}</p>
@@ -167,12 +167,12 @@
           </div>
         </template>
       </div>
-      <paper-button affirmative autofocus on-click="{{startChallengeClicked}}">{{startChallengeBtnLabel}}</paper-button>
+      <paper-button affirmative autofocus on-tap="{{startChallengeClicked}}">{{startChallengeBtnLabel}}</paper-button>
     </paper-dialog>
     <paper-toast id="challenge_pending" duration="10000" text="Get ready, challenge starts soon..."></paper-toast>
     <paper-dialog id="connection_error" heading="Error" autoCloseDisabled>
       <p>Server communication error.</p>
-      <paper-button affirmative autofocus on-click={{connectionRetryClicked}}>Retry</paper-button>
+      <paper-button affirmative autofocus on-tap={{connectionRetryClicked}}>Retry</paper-button>
     </paper-dialog>
   </template>
   <script type="application/dart" src="chess_challenge_board.dart"></script>
