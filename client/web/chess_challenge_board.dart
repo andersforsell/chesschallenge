@@ -2,21 +2,18 @@
  */
 
 import 'dart:html';
+import 'dart:async';
 import 'dart:math';
 import 'dart:convert' show JSON;
 import 'package:polymer/polymer.dart';
 import 'package:chessboard/chess_board.dart';
-import 'package:chesschallenge/shared.dart';
-import 'dart:async';
+import 'package:client/shared.dart';
 
 /**
  * The Chess Challenge Board component
  */
 @CustomTag('chess-challenge-board')
 class ChessChallengeBoard extends PolymerElement {
-
-  static const SERVER_IP = 'localhost';
-
   @published User user;
 
   @observable List<User> leaderBoard = [];
@@ -63,7 +60,10 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void _connect() {
-    _webSocket = new WebSocket('ws://${SERVER_IP}:4040/ws');
+    Uri uri = Uri.parse(window.location.href);
+    var port = uri.port != 8080 ? 80 : 9090;
+
+    _webSocket = new WebSocket('ws://${uri.host}:${port}/ws');
     _webSocket.onMessage.listen(_receive);
     _webSocket.onOpen.listen((event) {
       print('Connected to server');

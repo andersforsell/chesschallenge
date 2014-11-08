@@ -1,0 +1,8 @@
+name: server
+dependencies:
+  client:
+    path: ../client/
+  shelf: any
+  shelf_web_socket: any
+  path: any
+
