@@ -104,10 +104,17 @@ void onConnection(webSocket) {
       users.remove(webSocket);
       var user =
           new User.fromMap(JSON.decode(message.substring(Messages.LOGIN.length)));
+      print('Login received from ${user.name}');
       users.putIfAbsent(webSocket, () => user);
+      // Send an update status to all other users
+      sendUpdateStatus(webSocket);
     } else if (message == Messages.CHALLENGE) {
+      print('Start/join challenge received from ${users[webSocket].name}');
       joinChallenge(webSocket);
+      // Send an update status to all other users
+      sendUpdateStatus(webSocket);
     } else if (message == Messages.CHECKMATE) {
+      print('Checkmate received from ${users[webSocket].name}');
       User user = users[webSocket];
       user.score += 1;
       var challenge = findChallenge(webSocket);
@@ -116,26 +123,14 @@ void onConnection(webSocket) {
         // We have a winner!
         challenge.stopWatch.stop();
         challenges.remove(challenge);
+        print('Sending gameover message');
         sendGameOver(challenge);
       } else {
+        print('Sending new chess problem');
         webSocket.add(Messages.PGN + challenge.games[user.score]);
       }
-    } else if (message == Messages.GETSTATUS) {
-      if (pendingChallenge != null) {
-        List<User> leaderBoard = getLeaderBoard(pendingChallenge);
-        int seconds =
-            PENDING_CHALLENGE_TIME -
-            pendingChallengeStopwatch.elapsed.inSeconds;
-        webSocket.add(
-            Messages.PENDINGCHALLENGE +
-                seconds.toString() +
-                ":" +
-                JSON.encode(leaderBoard));
-      } else {
-        List<User> users = getAvailableUsers(webSocket);
-        webSocket.add(Messages.AVAILABLEUSERS + JSON.encode(users));
-      }
     } else if (message == Messages.STOPCHALLENGE) {
+      print('Stop challenge received from ${users[webSocket].name}');
       var challenge = findChallenge(webSocket);
       if (challenge != null) {
         challenge.webSockets.remove(webSocket);
@@ -145,16 +140,41 @@ void onConnection(webSocket) {
         }
         updateLeaderBoard(challenge);
       }
+      sendUpdateStatus(webSocket);
     }
   }, onDone: () => doneHandler(webSocket));
 }
 
-/// Return the list of available users except the user
-/// corresponding to the given websocket
-List<User> getAvailableUsers(webSocket) {
+void sendUpdateStatus(webSocket) {
+  List<User> availableUsers = getAvailableUsers();
+  for (var ws in users.keys) {
+    User user = users[ws];
+    if (availableUsers.contains(user)){
+      if (pendingChallenge != null) {
+        List<User> leaderBoard = getLeaderBoard(pendingChallenge);
+        int seconds =
+            PENDING_CHALLENGE_TIME -
+            pendingChallengeStopwatch.elapsed.inSeconds;
+        print('Sending pending challenge to ${user.name} ${JSON.encode(leaderBoard)}');
+        ws.add(
+            Messages.PENDINGCHALLENGE +
+                seconds.toString() +
+                ":" +
+                JSON.encode(leaderBoard));
+      } else {
+        List<User> otherUsers = getAvailableUsers()..remove(user);
+        print('Sending available users to ${user.name} ${JSON.encode(otherUsers)}');
+        ws.add(Messages.AVAILABLEUSERS + JSON.encode(otherUsers));
+      }
+    }
+  }
+}
+
+/// Return the list of available users
+List<User> getAvailableUsers() {
   List<User> availableUsers = [];
   for (var ws in users.keys) {
-    if (ws != webSocket && findChallenge(ws) == null) {
+    if (findChallenge(ws) == null) {
       availableUsers.add(users[ws]);
     }
   }
@@ -177,10 +197,9 @@ void joinChallenge(dynamic webSocket) {
     pendingChallengeStopwatch
         ..reset()
         ..start();
-    var timer =
-        new Timer.periodic(
-            new Duration(seconds: PENDING_CHALLENGE_TIME),
-            startChallenge);
+    var timer = new Timer.periodic(
+        new Duration(seconds: PENDING_CHALLENGE_TIME),
+        startChallenge);
 
   } else if (!pendingChallenge.webSockets.contains(webSocket)) {
     pendingChallenge.webSockets.add(webSocket);

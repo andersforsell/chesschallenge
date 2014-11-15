@@ -32,8 +32,6 @@ class ChessChallengeBoard extends PolymerElement {
 
   Timer _challengeTimer;
 
-  Timer _updateStatusTimer;
-
   ChessBoard _chessBoard;
 
   WebSocket _webSocket;
@@ -63,17 +61,17 @@ class ChessChallengeBoard extends PolymerElement {
     Uri uri = Uri.parse(window.location.href);
     var port = uri.port != 8080 ? 80 : 9090;
 
-    _webSocket = new WebSocket('ws://${uri.host}:${port}/ws');
-    _webSocket.onMessage.listen(_receive);
-    _webSocket.onOpen.listen((event) {
-      print('Connected to server');
-      _webSocket.send(Messages.LOGIN + JSON.encode(user));
+    _webSocket = new WebSocket('ws://${uri.host}:${port}/ws')
+        ..onMessage.listen(_receive)
+        ..onOpen.listen((event) {
+          print('Connected to server');
+          _webSocket.send(Messages.LOGIN + JSON.encode(user));
 
-      showStartChallengeDialog();
-    });
-    _webSocket.onError.listen((event) {
-      async((_) => $['connection_error'].toggle());
-    });
+          showStartChallengeDialog();
+        })
+        ..onError.listen((event) {
+          async((_) => $['connection_error'].toggle());
+        });
   }
 
   void connectionRetryClicked(Event event, var detail, Node target) {
@@ -82,9 +80,6 @@ class ChessChallengeBoard extends PolymerElement {
 
   void showStartChallengeDialog() {
     $['start_challenge'].toggle();
-    _updateStatusTimer = new Timer.periodic(
-        new Duration(milliseconds: 1000),
-        updateStartChallengeStatus);
   }
 
   void updateStartChallengeStatus(Timer timer) {
@@ -95,7 +90,7 @@ class ChessChallengeBoard extends PolymerElement {
     String message = event.data;
     if (message.startsWith(Messages.PGN)) {
       var pgn = message.substring(Messages.PGN.length);
-      print('PGN received: ' + pgn);
+      print('Chess problem received: ' + pgn);
       ChessBoard chessBoard = $['chess_board']..position = pgn;
       async((_) {
         chessBoard.undo();
@@ -103,6 +98,7 @@ class ChessChallengeBoard extends PolymerElement {
         async((_) => chessBoard.refresh());
       });
     } else if (message == Messages.STARTCHALLENGE) {
+      print('Start challenge message received');
       $['challenge_pending'].dismiss();
       $['stop_challenge'].style.display = 'block';
       _stopWatch
@@ -111,13 +107,16 @@ class ChessChallengeBoard extends PolymerElement {
       _challengeTimer =
           new Timer.periodic(new Duration(seconds: 1), updateChallengeTime);
     } else if (message.startsWith(Messages.LEADERBOARD)) {
+      print('Leaderboard message received');
       List leaders =
           JSON.decode(message.substring(Messages.LEADERBOARD.length));
       leaderBoard = leaders.map((u) => new User.fromMap(u)).toList();
     } else if (message.startsWith(Messages.GAMEOVER)) {
+      print('Gameover message received');
       int time = int.parse(message.substring(Messages.GAMEOVER.length));
       showResultsDialog(time);
     } else if (message.startsWith(Messages.PENDINGCHALLENGE)) {
+      print('Pending challenge message received');
       String msg = message.substring(Messages.PENDINGCHALLENGE.length);
       int index = msg.indexOf(":");
       var time = msg.substring(0, index);
@@ -127,7 +126,9 @@ class ChessChallengeBoard extends PolymerElement {
       startChallengeStatus = 'A new challenge starts in ${time} seconds:';
       startChallengeBtnLabel = 'Join';
     } else if (message.startsWith(Messages.AVAILABLEUSERS)) {
-      _updateChallengeUsers(message.substring(Messages.AVAILABLEUSERS.length));
+      var users = message.substring(Messages.AVAILABLEUSERS.length);
+      print('Available users message received ${users}');
+      _updateChallengeUsers(users);
 
       if (startChallengeUsers.length > 0) {
         startChallengeStatus = 'Challenge the following users:';
@@ -138,16 +139,10 @@ class ChessChallengeBoard extends PolymerElement {
     }
   }
 
-  // The previous encoded 'users' from the server, used for optimizing
-  String _previousUsers;
-
   void _updateChallengeUsers(String jsonUsers) {
-    if (jsonUsers != _previousUsers) {
-      List challengeUsers = JSON.decode(jsonUsers);
-      startChallengeUsers =
-          challengeUsers.map((u) => new User.fromMap(u)).toList();
-      _previousUsers = jsonUsers;
-    }
+    List challengeUsers = JSON.decode(jsonUsers);
+    startChallengeUsers =
+        challengeUsers.map((u) => new User.fromMap(u)).toList();
   }
 
   void showResultsDialog(int time) {
@@ -200,14 +195,10 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void startChallengeClicked(Event event, var detail, Node target) {
-    if (_updateStatusTimer != null) {
-      _updateStatusTimer.cancel();
-      _updateStatusTimer = null;
-      async((_) {
-        $['start_challenge'].opened = false;
-      });
-    }
-    async((_) => startChallenge());
+    async((_) {
+      $['start_challenge'].opened = false;
+      startChallenge();
+    });
   }
 
   void startChallenge() {
@@ -233,6 +224,7 @@ class ChessChallengeBoard extends PolymerElement {
     challengeTime = '';
     async((_) {
       $['stop_challenge'].style.display = 'none';
+      _webSocket.send(Messages.LOGIN + JSON.encode(user));
       showStartChallengeDialog();
     });
   }
