@@ -106,13 +106,11 @@ void onConnection(webSocket) {
           new User.fromMap(JSON.decode(message.substring(Messages.LOGIN.length)));
       print('Login received from ${user.name}');
       users.putIfAbsent(webSocket, () => user);
-      // Send an update status to all other users
-      sendUpdateStatus(webSocket);
+      sendUpdateStatus();
     } else if (message == Messages.CHALLENGE) {
       print('Start/join challenge received from ${users[webSocket].name}');
       joinChallenge(webSocket);
-      // Send an update status to all other users
-      sendUpdateStatus(webSocket);
+      sendUpdateStatus();
     } else if (message == Messages.CHECKMATE) {
       print('Checkmate received from ${users[webSocket].name}');
       User user = users[webSocket];
@@ -140,12 +138,12 @@ void onConnection(webSocket) {
         }
         updateLeaderBoard(challenge);
       }
-      sendUpdateStatus(webSocket);
+      sendUpdateStatus();
     }
   }, onDone: () => doneHandler(webSocket));
 }
 
-void sendUpdateStatus(webSocket) {
+void sendUpdateStatus() {
   List<User> availableUsers = getAvailableUsers();
   for (var ws in users.keys) {
     User user = users[ws];
@@ -222,6 +220,7 @@ void startChallenge(Timer timer) {
   sendStartChallenge(pendingChallenge);
   sendNewChessProblem(pendingChallenge);
   pendingChallenge = null;
+  sendUpdateStatus();
 }
 
 void sendStartChallenge(Challenge pendingChallenge) {
