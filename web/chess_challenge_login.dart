@@ -4,7 +4,7 @@
 import 'package:polymer/polymer.dart';
 import 'dart:html';
 import 'dart:math';
-import 'package:client/shared.dart';
+import 'package:chesschallenge/shared.dart';
 
 /**
  * The Chess Challenge Login component

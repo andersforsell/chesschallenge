@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert' show JSON, LATIN1, LineSplitter, UTF8;
 import 'dart:math';
-import 'package:client/shared.dart';
+import 'package:chesschallenge/shared.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:path/path.dart' as path;

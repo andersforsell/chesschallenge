@@ -7,7 +7,7 @@ import 'dart:math';
 import 'dart:convert' show JSON;
 import 'package:polymer/polymer.dart';
 import 'package:chessboard/chess_board.dart';
-import 'package:client/shared.dart';
+import 'package:chesschallenge/shared.dart';
 
 /**
  * The Chess Challenge Board component
@@ -213,6 +213,10 @@ class ChessChallengeBoard extends PolymerElement {
       $['start_challenge'].opened = false;
       startChallenge();
     });
+  }
+
+  void showAbout() {
+    async((_) => $['about_dialog'].toggle());
   }
 
   void startChallenge() {

@@ -2,7 +2,7 @@
  */
 
 import 'package:polymer/polymer.dart';
-import 'package:client/shared.dart';
+import 'package:chesschallenge/shared.dart';
 
 /**
  * The Chess Challenge App component

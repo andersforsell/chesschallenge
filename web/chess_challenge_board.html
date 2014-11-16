@@ -31,12 +31,6 @@
         font-family: Roboto,sans-serif;
         font-size: 16px;
       }
-      #main_toolbar, #navheader {
-        height: 64px;
-        z-index: 1;
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-      }
-
       .avatar {
         border-radius: 50%;
         overflow: hidden;
@@ -133,6 +127,7 @@
           <div flex class="user-name">{{user.name}}</div>
           <div class="time">{{challengeTime}}</div>
           <paper-icon-button id="stop_challenge" icon=cancel style="display:none" on-tap="{{stopChallengeClicked}}"></paper-icon-button>
+          <paper-icon-button id="about" icon="help" on-tap="{{showAbout}}"></paper-icon-button>
           <paper-icon-button id="navicon" icon="menu"></paper-icon-button>
         </core-toolbar>
         <div class="content">
@@ -173,6 +168,12 @@
     <paper-dialog id="connection_error" heading="Error" autoCloseDisabled>
       <p>Server communication error.</p>
       <paper-button affirmative autofocus on-tap={{connectionRetryClicked}}>Retry</paper-button>
+    </paper-dialog>
+    <paper-dialog id="about_dialog" heading="About ChessChallenge">
+      <p>Find and make the chessmate move as fast as possible.</p>
+      <p>You can also challenge other users. </p>
+      <p>The first who completes five problems wins!</p>
+      <paper-button affirmative autofocus>OK</paper-button>
     </paper-dialog>
   </template>
   <script type="application/dart" src="chess_challenge_board.dart"></script>
