@@ -32,6 +32,8 @@ class ChessChallengeBoard extends PolymerElement {
 
   Timer _challengeTimer;
 
+  Timer _pendingChallengeTimer;
+
   ChessBoard _chessBoard;
 
   WebSocket _webSocket;
@@ -119,12 +121,24 @@ class ChessChallengeBoard extends PolymerElement {
       print('Pending challenge message received');
       String msg = message.substring(Messages.PENDINGCHALLENGE.length);
       int index = msg.indexOf(":");
-      var time = msg.substring(0, index);
+      int seconds = int.parse(msg.substring(0, index));
 
       _updateChallengeUsers(msg.substring(index + 1));
 
-      startChallengeStatus = 'A new challenge starts in ${time} seconds:';
+      startChallengeStatus = 'A new challenge is starting in ${seconds} seconds...';
       startChallengeBtnLabel = 'Join';
+
+      _pendingChallengeTimer =
+          new Timer.periodic(new Duration(milliseconds: 1000), (timer) {
+        seconds--;
+        if (seconds == 0) {
+          timer.cancel();
+        } else {
+          startChallengeStatus =
+              'Challenge is starting in ${seconds} seconds...';
+        }
+      });
+
     } else if (message.startsWith(Messages.AVAILABLEUSERS)) {
       var users = message.substring(Messages.AVAILABLEUSERS.length);
       print('Available users message received ${users}');
@@ -202,6 +216,7 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void startChallenge() {
+    if (_pendingChallengeTimer != null) _pendingChallengeTimer.cancel();
     _webSocket.send(Messages.CHALLENGE);
     async((_) => $['challenge_pending'].show());
   }
