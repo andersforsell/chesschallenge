@@ -71,6 +71,10 @@ class ChessChallengeBoard extends PolymerElement {
 
           showStartChallengeDialog();
         })
+        ..onClose.listen((event) {
+          print('Disconnected from server');
+          async((_) => $['connection_error'].toggle());
+        })
         ..onError.listen((event) {
           async((_) => $['connection_error'].toggle());
         });

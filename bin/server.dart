@@ -236,6 +236,9 @@ void sendNewChessProblem(Challenge pendingChallenge) {
 }
 
 void doneHandler(webSocket) {
+  print("Websocket closed for user '${users[webSocket].name}', "
+        "closeReason = '${webSocket.closeReason}', "
+        "closeCode = ${webSocket.closeCode}");
   leaveChallenge(webSocket);
   users.remove(webSocket);
 }
