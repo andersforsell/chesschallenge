@@ -167,6 +167,7 @@
     <paper-toast id="challenge_pending" duration="10000" text="Get ready, challenge starts soon..."></paper-toast>
     <paper-dialog id="connection_error" heading="Error" autoCloseDisabled>
       <p>Server communication error.</p>
+      <p>{{errorMessage}}</p>
       <paper-button affirmative autofocus on-tap={{connectionRetryClicked}}>Retry</paper-button>
     </paper-dialog>
     <paper-dialog id="about_dialog" heading="About ChessChallenge">

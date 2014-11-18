@@ -28,6 +28,8 @@ class ChessChallengeBoard extends PolymerElement {
 
   @observable String startChallengeBtnLabel = 'Start';
 
+  @observable String errorMessage = '';
+
   Stopwatch _stopWatch = new Stopwatch();
 
   Timer _challengeTimer;
@@ -66,16 +68,17 @@ class ChessChallengeBoard extends PolymerElement {
     _webSocket = new WebSocket('ws://${uri.host}:${port}/ws')
         ..onMessage.listen(_receive)
         ..onOpen.listen((event) {
-          print('Connected to server');
           _webSocket.send(Messages.LOGIN + JSON.encode(user));
 
           showStartChallengeDialog();
         })
         ..onClose.listen((event) {
-          print('Disconnected from server');
+          errorMessage = '${event.reason} (${event.code})';
           async((_) => $['connection_error'].toggle());
         })
         ..onError.listen((event) {
+          print('Websocket error: ${event}');
+          errorMessage = '';
           async((_) => $['connection_error'].toggle());
         });
   }
@@ -151,7 +154,7 @@ class ChessChallengeBoard extends PolymerElement {
       if (startChallengeUsers.length > 0) {
         startChallengeStatus = 'Challenge the following users:';
       } else {
-        startChallengeStatus = 'No users online, challenge yourself!';
+        startChallengeStatus = 'No users available, challenge yourself!';
       }
       startChallengeBtnLabel = 'Start';
     }

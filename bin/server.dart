@@ -15,7 +15,7 @@ List<String> pgnGames = [];
 
 const GAMES_PER_CHALLENGE = 5;
 
-const PENDING_CHALLENGE_TIME = 10;
+const PENDING_CHALLENGE_TIME = 9;
 
 Challenge pendingChallenge = null;
 
