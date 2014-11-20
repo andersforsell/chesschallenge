@@ -99,6 +99,10 @@ List<User> getLeaderBoard(Challenge challenge) {
 }
 
 void onConnection(webSocket) {
+
+  // Set ping interval to prevent disconnection from peers
+  webSocket.pingInterval = new Duration(seconds: 5);
+
   webSocket.listen((String message) {
     if (message.startsWith(Messages.LOGIN)) {
       users.remove(webSocket);
