@@ -1,7 +1,11 @@
+
+const firebaseUrl = 'https://chesschallenge.firebaseio.com';
+
 class User {
   String name;
   int avatar;
   int score = 0;
+  int time;
 
   User(this.name, this.avatar);
 
@@ -9,6 +13,7 @@ class User {
     name = map['name'];
     avatar = map['avatar'];
     score = map['score'];
+    time = map['time'];
   }
 
   Map toJson() {
@@ -16,6 +21,7 @@ class User {
     map['name'] = name;
     map['avatar'] = avatar;
     map['score'] = score;
+    map['time'] = time;
     return map;
   }
 }

@@ -8,6 +8,7 @@ import 'dart:convert' show JSON;
 import 'package:polymer/polymer.dart';
 import 'package:chessboard/chess_board.dart';
 import 'package:chesschallenge/shared.dart';
+import 'package:firebase/firebase.dart' show Firebase;
 
 /**
  * The Chess Challenge Board component
@@ -17,6 +18,8 @@ class ChessChallengeBoard extends PolymerElement {
   @published User user;
 
   @observable List<User> leaderBoard = [];
+
+  @observable List<User> hallOfFame = [];
 
   @observable List<User> startChallengeUsers = [];
 
@@ -29,6 +32,8 @@ class ChessChallengeBoard extends PolymerElement {
   @observable String startChallengeBtnLabel = 'Start';
 
   @observable String errorMessage = '';
+
+  @observable bool challengeOngoing = false;
 
   Stopwatch _stopWatch = new Stopwatch();
 
@@ -59,7 +64,9 @@ class ChessChallengeBoard extends PolymerElement {
 
   void userChanged(User oldValue, User newValue) {
     _connect();
+    _connectFirebase();
   }
+
 
   void _connect() {
     Uri uri = Uri.parse(window.location.href);
@@ -83,16 +90,23 @@ class ChessChallengeBoard extends PolymerElement {
         });
   }
 
+  void _connectFirebase() {
+    var fb = new Firebase(firebaseUrl + '/users');
+    fb.onChildAdded.listen((event) {
+      User user = new User.fromMap(event.snapshot.val());
+      hallOfFame
+          ..add(user)
+          ..sort((u1, u2) => u1.time.compareTo(u2.time))
+          ..sublist(0, min(10, hallOfFame.length));
+    });
+  }
+
   void connectionRetryClicked(Event event, var detail, Node target) {
     async((_) => _connect());
   }
 
   void showStartChallengeDialog() {
     $['start_challenge'].toggle();
-  }
-
-  void updateStartChallengeStatus(Timer timer) {
-    _webSocket.send(Messages.GETSTATUS);
   }
 
   void _receive(MessageEvent event) {
@@ -115,6 +129,7 @@ class ChessChallengeBoard extends PolymerElement {
           ..start();
       _challengeTimer =
           new Timer.periodic(new Duration(seconds: 1), updateChallengeTime);
+      challengeOngoing = true;
     } else if (message.startsWith(Messages.LEADERBOARD)) {
       print('Leaderboard message received');
       List leaders =
@@ -132,7 +147,8 @@ class ChessChallengeBoard extends PolymerElement {
 
       _updateChallengeUsers(msg.substring(index + 1));
 
-      startChallengeStatus = 'A new challenge is starting in ${seconds} seconds...';
+      startChallengeStatus =
+          'A new challenge is starting in ${seconds} seconds...';
       startChallengeBtnLabel = 'Join';
 
       _pendingChallengeTimer =
@@ -167,6 +183,7 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void showResultsDialog(int time) {
+    challengeOngoing = false;
     _challengeTimer.cancel();
     _stopWatch.stop();
     challengeTime = '';
@@ -244,6 +261,7 @@ class ChessChallengeBoard extends PolymerElement {
   void showStartChallenge() {
     if (_challengeTimer != null) {
       _challengeTimer.cancel();
+      challengeOngoing = false;
     }
     _stopWatch.stop();
     leaderBoard = [];

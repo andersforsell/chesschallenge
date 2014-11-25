@@ -111,11 +111,18 @@
           </div>
         </core-toolbar>
         <div class="leaderboard">
-          <template repeat="{{ user in leaderBoard }}">
+          <template if="{{challengeOngoing}}" repeat="{{ user in leaderBoard }}">
             <div layout horizontal center style="height:40px">
               <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
               <div layout flex class="leaderboard_name">{{user.name}}</div>
               <div class="leaderboard_score">{{user.score}}</div>
+            </div>
+          </template>
+          <template if="{{!challengeOngoing}}" repeat="{{ user in hallOfFame }}">
+            <div layout horizontal center style="height:40px">
+              <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
+              <div layout flex class="leaderboard_name">{{user.name}}</div>
+              <div class="leaderboard_score">{{ (user.time/1000).toStringAsFixed(1) }}s</div>
             </div>
           </template>
         </div>

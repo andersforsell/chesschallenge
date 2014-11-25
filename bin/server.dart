@@ -124,6 +124,8 @@ void onConnection(webSocket) {
       if (user.score == challenge.games.length) {
         // We have a winner!
         challenge.stopWatch.stop();
+        user.time = challenge.stopWatch.elapsedMilliseconds;
+        _storeUser(user);
         challenges.remove(challenge);
         print('Sending gameover message');
         sendGameOver(challenge);
@@ -145,6 +147,20 @@ void onConnection(webSocket) {
       sendUpdateStatus();
     }
   }, onDone: () => doneHandler(webSocket));
+}
+
+// Stores the user in Firebase
+void _storeUser(User user) {
+  new HttpClient().postUrl(Uri.parse(firebaseUrl + '/users.json'))
+      .then((HttpClientRequest request) {
+    request.headers.contentType = ContentType.JSON;
+    request.write(JSON.encode(user.toJson()));
+    return request.close();
+  }).then((HttpClientResponse response) {
+    response.transform(UTF8.decoder).listen((contents) {
+      print('Stored winner in Firebase: ${contents}');
+    });
+  });
 }
 
 void sendUpdateStatus() {
