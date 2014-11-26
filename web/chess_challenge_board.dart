@@ -17,11 +17,11 @@ import 'package:firebase/firebase.dart' show Firebase;
 class ChessChallengeBoard extends PolymerElement {
   @published User user;
 
-  @observable List<User> leaderBoard = [];
+  @observable List<User> leaderBoard = toObservable([]);
 
-  @observable List<User> hallOfFame = [];
+  @observable List<User> highScore = toObservable([]);
 
-  @observable List<User> startChallengeUsers = [];
+  @observable List<User> startChallengeUsers = toObservable([]);
 
   @observable String winnerTime;
 
@@ -75,9 +75,7 @@ class ChessChallengeBoard extends PolymerElement {
     _webSocket = new WebSocket('ws://${uri.host}:${port}/ws')
         ..onMessage.listen(_receive)
         ..onOpen.listen((event) {
-          _webSocket.send(Messages.LOGIN + JSON.encode(user));
-
-          showStartChallengeDialog();
+          showStartChallenge();
         })
         ..onClose.listen((event) {
           errorMessage = '${event.reason} (${event.code})';
@@ -94,10 +92,11 @@ class ChessChallengeBoard extends PolymerElement {
     var fb = new Firebase(firebaseUrl + '/users');
     fb.onChildAdded.listen((event) {
       User user = new User.fromMap(event.snapshot.val());
-      hallOfFame
+      highScore
           ..add(user)
-          ..sort((u1, u2) => u1.time.compareTo(u2.time))
-          ..sublist(0, min(10, hallOfFame.length));
+          ..sort((u1, u2) => u1.time.compareTo(u2.time));
+      // Show top 10
+      if (highScore.length > 10) highScore.removeLast();
     });
   }
 
@@ -122,6 +121,7 @@ class ChessChallengeBoard extends PolymerElement {
       });
     } else if (message == Messages.STARTCHALLENGE) {
       print('Start challenge message received');
+      challengeOngoing = true;
       $['challenge_pending'].dismiss();
       $['stop_challenge'].style.display = 'block';
       _stopWatch
@@ -129,7 +129,6 @@ class ChessChallengeBoard extends PolymerElement {
           ..start();
       _challengeTimer =
           new Timer.periodic(new Duration(seconds: 1), updateChallengeTime);
-      challengeOngoing = true;
     } else if (message.startsWith(Messages.LEADERBOARD)) {
       print('Leaderboard message received');
       List leaders =
@@ -261,11 +260,11 @@ class ChessChallengeBoard extends PolymerElement {
   void showStartChallenge() {
     if (_challengeTimer != null) {
       _challengeTimer.cancel();
-      challengeOngoing = false;
     }
     _stopWatch.stop();
     leaderBoard = [];
     challengeTime = '';
+    challengeOngoing = false;
     async((_) {
       $['stop_challenge'].style.display = 'none';
       _webSocket.send(Messages.LOGIN + JSON.encode(user));
