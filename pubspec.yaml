@@ -2,7 +2,7 @@ name: chesschallenge
 author: Anders Forsell <aforsell1971@gmail.com>
 description: A multi-player game where you compete in solving chess problems as fast as possible.
 dependencies:
-  chessboard: '>=0.0.10 <0.1.0'
+  chessboard: '>=0.1.0 <0.2.0'
   core_elements: '>=0.4.0 <0.5.0'
   firebase: '>=0.2.0 <0.3.0'
   paper_elements: '>=0.5.0 <0.6.0'
