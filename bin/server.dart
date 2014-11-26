@@ -6,12 +6,15 @@ import 'package:chesschallenge/shared.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:path/path.dart' as path;
+import 'package:http/http.dart' as http;
 
 Map<WebSocket, User> users = {};
 
 List<Challenge> challenges = [];
 
 List<String> pgnGames = [];
+
+List<User> highScores = [];
 
 const GAMES_PER_CHALLENGE = 5;
 
@@ -58,7 +61,9 @@ void main() {
   var portEnv = Platform.environment['PORT'];
   var port = portEnv != null ? int.parse(portEnv) : 9090;
 
-  readGames('IB1419.pgn');
+  _readGames('IB1419.pgn');
+
+  _readHighscores();
 
   var handler = webSocketHandler(onConnection);
 
@@ -67,7 +72,18 @@ void main() {
   });
 }
 
-void readGames(String fileName) {
+void _readHighscores() {
+  http.get(firebaseUrl + "/highscores.json").then((response) {
+    if (response.statusCode == HttpStatus.OK) {
+      String json = response.body;
+      if (json != 'null') {
+        highScores = getUsersFromJson(json);
+      }
+    }
+  });
+}
+
+void _readGames(String fileName) {
   String pgn = '';
 
   final serverDir = path.dirname(Platform.script.toFilePath());
@@ -126,6 +142,7 @@ void onConnection(webSocket) {
         challenge.stopWatch.stop();
         user.time = challenge.stopWatch.elapsedMilliseconds;
         _storeUser(user);
+        _updateHighscores(user);
         challenges.remove(challenge);
         print('Sending gameover message');
         sendGameOver(challenge);
@@ -149,10 +166,35 @@ void onConnection(webSocket) {
   }, onDone: () => doneHandler(webSocket));
 }
 
+// Updates the highscores list if necessary
+void _updateHighscores(User user) {
+  if (highScores.isEmpty || user.time <= highScores.last.time) {
+    highScores
+        ..add(user)
+        ..sort((u1, u2) => u1.time.compareTo(u2.time));
+    if (highScores.length > 10) highScores.removeLast();
+    _storeHighscoreUsers(highScores);
+  }
+}
+
+// Stores the highscore users in Firebase
+void _storeHighscoreUsers(List<User> highScores) {
+  new HttpClient().putUrl(
+      Uri.parse(firebaseUrl + '/highscores.json')).then((HttpClientRequest request) {
+    request.headers.contentType = ContentType.JSON;
+    request.write(JSON.encode(highScores));
+    return request.close();
+  }).then((HttpClientResponse response) {
+    response.transform(UTF8.decoder).listen((contents) {
+      print('Stored new highscore in Firebase: ${contents}');
+    });
+  });
+}
+
 // Stores the user in Firebase
 void _storeUser(User user) {
-  new HttpClient().postUrl(Uri.parse(firebaseUrl + '/users.json'))
-      .then((HttpClientRequest request) {
+  new HttpClient().postUrl(
+      Uri.parse(firebaseUrl + '/users.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
     request.write(JSON.encode(user.toJson()));
     return request.close();
@@ -167,13 +209,14 @@ void sendUpdateStatus() {
   List<User> availableUsers = getAvailableUsers();
   for (var ws in users.keys) {
     User user = users[ws];
-    if (availableUsers.contains(user)){
+    if (availableUsers.contains(user)) {
       if (pendingChallenge != null) {
         List<User> leaderBoard = getLeaderBoard(pendingChallenge);
         int seconds =
             PENDING_CHALLENGE_TIME -
             pendingChallengeStopwatch.elapsed.inSeconds;
-        print('Sending pending challenge to ${user.name} ${JSON.encode(leaderBoard)}');
+        print(
+            'Sending pending challenge to ${user.name} ${JSON.encode(leaderBoard)}');
         ws.add(
             Messages.PENDINGCHALLENGE +
                 seconds.toString() +
@@ -181,7 +224,8 @@ void sendUpdateStatus() {
                 JSON.encode(leaderBoard));
       } else {
         List<User> otherUsers = getAvailableUsers()..remove(user);
-        print('Sending available users to ${user.name} ${JSON.encode(otherUsers)}');
+        print(
+            'Sending available users to ${user.name} ${JSON.encode(otherUsers)}');
         ws.add(Messages.AVAILABLEUSERS + JSON.encode(otherUsers));
       }
     }
@@ -256,9 +300,10 @@ void sendNewChessProblem(Challenge pendingChallenge) {
 }
 
 void doneHandler(webSocket) {
-  print("Websocket closed for user '${users[webSocket].name}', "
-        "closeReason = '${webSocket.closeReason}', "
-        "closeCode = ${webSocket.closeCode}");
+  print(
+      "Websocket closed for user '${users[webSocket].name}', "
+          "closeReason = '${webSocket.closeReason}', "
+          "closeCode = ${webSocket.closeCode}");
   leaveChallenge(webSocket);
   users.remove(webSocket);
 }

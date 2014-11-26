@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 const firebaseUrl = 'https://chesschallenge.firebaseio.com';
 
@@ -24,6 +25,11 @@ class User {
     map['time'] = time;
     return map;
   }
+}
+
+List<User> getUsersFromJson(String jsonUsers) {
+  List challengeUsers = JSON.decode(jsonUsers);
+  return challengeUsers.map((u) => new User.fromMap(u)).toList();
 }
 
 class Messages {

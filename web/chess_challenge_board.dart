@@ -19,7 +19,7 @@ class ChessChallengeBoard extends PolymerElement {
 
   @observable List<User> leaderBoard = toObservable([]);
 
-  @observable List<User> highScore = toObservable([]);
+  @observable List<User> highScores = toObservable([]);
 
   @observable List<User> startChallengeUsers = toObservable([]);
 
@@ -89,14 +89,10 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void _connectFirebase() {
-    var fb = new Firebase(firebaseUrl + '/users');
-    fb.onChildAdded.listen((event) {
-      User user = new User.fromMap(event.snapshot.val());
-      highScore
-          ..add(user)
-          ..sort((u1, u2) => u1.time.compareTo(u2.time));
-      // Show top 10
-      if (highScore.length > 10) highScore.removeLast();
+    var fb = new Firebase(firebaseUrl + '/highscores');
+    fb.onValue.listen((event) {
+      List users = event.snapshot.val();
+      highScores = users.map((u) => new User.fromMap(u)).toList();
     });
   }
 
@@ -144,7 +140,7 @@ class ChessChallengeBoard extends PolymerElement {
       int index = msg.indexOf(":");
       int seconds = int.parse(msg.substring(0, index));
 
-      _updateChallengeUsers(msg.substring(index + 1));
+      startChallengeUsers = getUsersFromJson(msg.substring(index + 1));
 
       startChallengeStatus =
           'A new challenge is starting in ${seconds} seconds...';
@@ -164,7 +160,7 @@ class ChessChallengeBoard extends PolymerElement {
     } else if (message.startsWith(Messages.AVAILABLEUSERS)) {
       var users = message.substring(Messages.AVAILABLEUSERS.length);
       print('Available users message received ${users}');
-      _updateChallengeUsers(users);
+      startChallengeUsers = getUsersFromJson(users);
 
       if (startChallengeUsers.length > 0) {
         startChallengeStatus = 'Challenge the following users:';
@@ -173,12 +169,6 @@ class ChessChallengeBoard extends PolymerElement {
       }
       startChallengeBtnLabel = 'Start';
     }
-  }
-
-  void _updateChallengeUsers(String jsonUsers) {
-    List challengeUsers = JSON.decode(jsonUsers);
-    startChallengeUsers =
-        challengeUsers.map((u) => new User.fromMap(u)).toList();
   }
 
   void showResultsDialog(int time) {
