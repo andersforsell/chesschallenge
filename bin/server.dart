@@ -169,11 +169,21 @@ void onConnection(webSocket) {
 // Updates the highscores list if necessary
 void _updateHighscores(User user) {
   if (highScores.isEmpty || user.time <= highScores.last.time) {
-    highScores
-        ..add(user)
-        ..sort((u1, u2) => u1.time.compareTo(u2.time));
-    if (highScores.length > 10) highScores.removeLast();
-    _storeHighscoreUsers(highScores);
+    var scores =
+        highScores.where((u) => u.name == user.name && u.avatar == user.avatar);
+    if (scores.isNotEmpty) {
+      var existingUser = scores.first;
+      if (user.time < existingUser.time) {
+        existingUser.time = user.time;
+        _storeHighscoreUsers(highScores);
+      }
+    } else {
+      highScores
+          ..add(user)
+          ..sort((u1, u2) => u1.time.compareTo(u2.time));
+      if (highScores.length > 10) highScores.removeLast();
+      _storeHighscoreUsers(highScores);
+    }
   }
 }
 
