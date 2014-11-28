@@ -206,7 +206,7 @@ void _storeUser(User user) {
   new HttpClient().postUrl(
       Uri.parse(firebaseUrl + '/users.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
-    request.write(JSON.encode(user.toJson()));
+    request.write(JSON.encode(user));
     return request.close();
   }).then((HttpClientResponse response) {
     response.transform(UTF8.decoder).listen((contents) {

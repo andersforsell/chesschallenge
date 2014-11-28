@@ -18,12 +18,12 @@ class User {
   }
 
   Map toJson() {
-    Map map = new Map();
-    map['name'] = name;
-    map['avatar'] = avatar;
-    map['score'] = score;
-    map['time'] = time;
-    return map;
+    return {
+      'name': name,
+      'avatar': avatar,
+      'score': score,
+      'time': time
+    };
   }
 }
 
