@@ -119,7 +119,7 @@
               <div class="leaderboard_score">{{user.score}}</div>
             </div>
           </template>
-          <template if="{{!challengeOngoing}}" repeat="{{ user in highScores }}">
+          <template if="{{!challengeOngoing}}" repeat="{{ user in topList }}">
             <div layout horizontal center style="height:40px">
               <core-icon size="40" class="avatar" icon="avatars:avatar-{{user.avatar}}" style="height:40px; width:40px"></core-icon>
               <div layout flex class="leaderboard_name">{{user.name}}</div>

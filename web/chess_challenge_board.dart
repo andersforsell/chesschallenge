@@ -19,7 +19,7 @@ class ChessChallengeBoard extends PolymerElement {
 
   @observable List<User> leaderBoard = toObservable([]);
 
-  @observable List<User> highScores = toObservable([]);
+  @observable List<User> topList = toObservable([]);
 
   @observable List<User> startChallengeUsers = toObservable([]);
 
@@ -89,10 +89,11 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void _connectFirebase() {
-    var fb = new Firebase(firebaseUrl + '/highscores');
+    var fb = new Firebase(firebaseUrl + '/toplist');
     fb.onValue.listen((event) {
       List users = event.snapshot.val();
-      highScores = users.map((u) => new User.fromMap(u)).toList();
+      if (users != null) topList =
+          users.map((u) => new User.fromMap(u)).toList();
     });
   }
 

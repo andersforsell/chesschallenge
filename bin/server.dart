@@ -14,7 +14,7 @@ List<Challenge> challenges = [];
 
 List<String> pgnGames = [];
 
-List<User> highScores = [];
+List<User> topList = [];
 
 const GAMES_PER_CHALLENGE = 5;
 
@@ -63,7 +63,7 @@ void main() {
 
   _readGames('IB1419.pgn');
 
-  _readHighscores();
+  _readToplist();
 
   var handler = webSocketHandler(onConnection);
 
@@ -72,12 +72,12 @@ void main() {
   });
 }
 
-void _readHighscores() {
-  http.get(firebaseUrl + "/highscores.json").then((response) {
+void _readToplist() {
+  http.get(firebaseUrl + "/toplist.json").then((response) {
     if (response.statusCode == HttpStatus.OK) {
       String json = response.body;
       if (json != 'null') {
-        highScores = getUsersFromJson(json);
+        topList = getUsersFromJson(json);
       }
     }
   });
@@ -142,7 +142,7 @@ void onConnection(webSocket) {
         challenge.stopWatch.stop();
         user.time = challenge.stopWatch.elapsedMilliseconds;
         _storeUser(user);
-        _updateHighscores(user);
+        _updateToplist(user);
         challenges.remove(challenge);
         print('Sending gameover message');
         sendGameOver(challenge);
@@ -166,37 +166,37 @@ void onConnection(webSocket) {
   }, onDone: () => doneHandler(webSocket));
 }
 
-// Updates the highscores list if necessary
-void _updateHighscores(User user) {
-  if (highScores.isEmpty || user.time <= highScores.last.time) {
+// Updates the top 10 list if necessary
+void _updateToplist(User user) {
+  if (topList.isEmpty || user.time <= topList.last.time) {
     var scores =
-        highScores.where((u) => u.name == user.name && u.avatar == user.avatar);
+        topList.where((u) => u.name == user.name && u.avatar == user.avatar);
     if (scores.isNotEmpty) {
       var existingUser = scores.first;
       if (user.time < existingUser.time) {
         existingUser.time = user.time;
-        _storeHighscoreUsers(highScores);
+        _storeToplist(topList);
       }
     } else {
-      highScores
+      topList
           ..add(user)
           ..sort((u1, u2) => u1.time.compareTo(u2.time));
-      if (highScores.length > 10) highScores.removeLast();
-      _storeHighscoreUsers(highScores);
+      if (topList.length > 10) topList.removeLast();
+      _storeToplist(topList);
     }
   }
 }
 
-// Stores the highscore users in Firebase
-void _storeHighscoreUsers(List<User> highScores) {
+// Stores the top 10 users in Firebase
+void _storeToplist(List<User> topList) {
   new HttpClient().putUrl(
-      Uri.parse(firebaseUrl + '/highscores.json')).then((HttpClientRequest request) {
+      Uri.parse(firebaseUrl + '/toplist.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
-    request.write(JSON.encode(highScores));
+    request.write(JSON.encode(topList));
     return request.close();
   }).then((HttpClientResponse response) {
     response.transform(UTF8.decoder).listen((contents) {
-      print('Stored new highscore in Firebase: ${contents}');
+      print('Stored new top 10 user in Firebase: ${contents}');
     });
   });
 }
