@@ -187,10 +187,7 @@ void _updateToplist(User user) {
         _storeToplist(topList);
       }
     } else {
-      topList
-          ..add(user)
-          ..sort((u1, u2) => u1.time.compareTo(u2.time));
-      if (topList.length > 10) topList.removeLast();
+      topList.add(user);
       _storeToplist(topList);
     }
   }
@@ -198,6 +195,9 @@ void _updateToplist(User user) {
 
 // Stores the top 10 users in Firebase
 void _storeToplist(List<User> topList) {
+  topList.sort((u1, u2) => u1.time.compareTo(u2.time));
+  if (topList.length > 10) topList.removeLast();
+
   new HttpClient().putUrl(
       Uri.parse(firebaseUrl + '/toplist.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
