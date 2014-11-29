@@ -61,7 +61,8 @@ void main() {
   var portEnv = Platform.environment['PORT'];
   var port = portEnv != null ? int.parse(portEnv) : 9090;
 
-  _readGames('IB1419.pgn');
+  _readGames('grandmastergames.pgn');
+  _readGames('games.pgn');
 
   _readToplist();
 
@@ -90,13 +91,14 @@ void _readGames(String fileName) {
   final file = new File(serverDir + '/' + fileName);
 
   Stream<List<int>> inputStream = file.openRead();
-
+  int games = 0;
   inputStream.transform(
       LATIN1.decoder).transform(new LineSplitter()).listen((String line) {
     if (line.trim().isEmpty) {
-      if (pgn.contains('1.')) {
+      if (!pgn.endsWith(']\n')) {
         if (pgn.contains('#')) {
           pgnGames.add(pgn);
+          games++;
         }
         pgn = '';
       }
@@ -104,10 +106,18 @@ void _readGames(String fileName) {
       pgn += line + '\n';
     }
   }, onDone: () {
-    print('Ready with ${pgnGames.length} challenges.');
+    print('Loaded ${games} challenges from ${fileName}');
   }, onError: (e) {
     print(e.toString());
   });
+}
+
+void _writeGames(String fileName) {
+  final serverDir = path.dirname(Platform.script.toFilePath());
+  final file = new File(serverDir + '/' + fileName);
+  var sink = file.openWrite();
+  sink.writeAll(pgnGames, '\n');
+  sink.close();
 }
 
 List<User> getLeaderBoard(Challenge challenge) {
@@ -115,7 +125,6 @@ List<User> getLeaderBoard(Challenge challenge) {
 }
 
 void onConnection(webSocket) {
-
   // Set ping interval to prevent disconnection from peers
   webSocket.pingInterval = new Duration(seconds: 5);
 
