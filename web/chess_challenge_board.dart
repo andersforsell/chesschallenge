@@ -89,7 +89,7 @@ class ChessChallengeBoard extends PolymerElement {
   }
 
   void _connectFirebase() {
-    var fb = new Firebase(firebaseUrl + '/toplist');
+    var fb = new Firebase('${firebaseUrl}/toplist');
     fb.onValue.listen((event) {
       List users = event.snapshot.val();
       if (users != null) topList =

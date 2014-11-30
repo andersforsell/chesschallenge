@@ -199,13 +199,13 @@ void _storeToplist(List<User> topList) {
   if (topList.length > 10) topList.removeLast();
 
   new HttpClient().putUrl(
-      Uri.parse(firebaseUrl + '/toplist.json')).then((HttpClientRequest request) {
+      Uri.parse('${firebaseUrl}/toplist.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
     request.write(JSON.encode(topList));
     return request.close();
   }).then((HttpClientResponse response) {
     response.transform(UTF8.decoder).listen((contents) {
-      print('Stored new top 10 user in Firebase: ${contents}');
+      print('Stored new top list in Firebase: ${contents}');
     });
   });
 }
@@ -213,7 +213,7 @@ void _storeToplist(List<User> topList) {
 // Stores the user in Firebase
 void _storeUser(User user) {
   new HttpClient().postUrl(
-      Uri.parse(firebaseUrl + '/users.json')).then((HttpClientRequest request) {
+      Uri.parse('${firebaseUrl}/users.json')).then((HttpClientRequest request) {
     request.headers.contentType = ContentType.JSON;
     request.write(JSON.encode(user));
     return request.close();
