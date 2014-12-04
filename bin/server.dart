@@ -325,6 +325,7 @@ void doneHandler(webSocket) {
           "closeCode = ${webSocket.closeCode}");
   leaveChallenge(webSocket);
   users.remove(webSocket);
+  sendUpdateStatus();
 }
 
 void leaveChallenge(webSocket) {
