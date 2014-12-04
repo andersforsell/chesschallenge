@@ -177,7 +177,7 @@ void onConnection(webSocket) {
 
 // Updates the top 10 list if necessary
 void _updateToplist(User user) {
-  if (topList.isEmpty || user.time <= topList.last.time) {
+  if (topList.length < 10 || user.time <= topList.last.time) {
     var scores =
         topList.where((u) => u.name == user.name && u.avatar == user.avatar);
     if (scores.isNotEmpty) {
