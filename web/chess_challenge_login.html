@@ -94,24 +94,6 @@
       color: black;
     }
 
-    paper-fab {
-      transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1) 500ms, background-color 500ms cubic-bezier(0.4, 0, 0.2, 1);
-      -webkit-transition: -webkit-transform 500ms cubic-bezier(0.4, 0, 0.2, 1) 500ms, background-color 500ms cubic-bezier(0.4, 0, 0.2, 1);
-      -webkit-transform: scale(0);
-      transform: scale(0);
-      -webkit-transform-origin: 50% 50%;
-      transform-origin: 50% 50%;
-    }
-
-    paper-fab[showing] {
-      -webkit-transform: none;
-      transform: none;
-    }
-
-    paper-fab[disabled] {
-      pointer-events: none;
-    }
-
     .main {
       position: relative;
     }
@@ -156,7 +138,7 @@
         <div horizontal center layout>
           <div flex></div>
           <!-- TODO showing?="{{$['name'].inputValue.length > 0}}" -->
-          <paper-fab id="check" icon="check" showing?="{{$['name'].inputValue.length == 0}}" on-tap="{{handleLogin}}"></paper-fab>
+          <paper-fab id="check" icon="check" on-tap="{{handleLogin}}"></paper-fab>
         </div>
       </div>
     </div>

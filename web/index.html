@@ -34,6 +34,16 @@ favicon.ico from https://www.iconfinder.com/iconsets/brain-games
   <!-- Start the application -->
   <script type="application/dart">export 'package:polymer/init.dart';</script>
 
+  <!-- Workaround for styling -->
+  <style shim-shadowdom>
+    html /deep/ paper-action-dialog {
+      font-family: "Roboto",Helvetica,Arial,sans-serif;
+    }
+    html /deep/ .avatar {
+      border-radius: 50%;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body fullbleed unresolved>
    <chess-challenge-app></chess-challenge-app>

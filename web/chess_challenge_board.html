@@ -18,7 +18,7 @@
 <link rel="import" href="../../packages/paper_elements/paper_input.html">
 <link rel="import" href="../../packages/paper_elements/paper_toast.html">
 <link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
-<link rel="import" href="../../packages/paper_elements/paper_dialog.html">
+<link rel="import" href="../../packages/paper_elements/paper_action_dialog.html">
 
 <!-- import chess-board -->
 <link rel="import" href="../../packages/chessboard/chess_board.html">
@@ -144,7 +144,7 @@
         </div>
       </core-header-panel>
     </core-drawer-panel>
-    <paper-dialog id="result" style="width:80%" heading="Time: {{winnerTime}}" autoCloseDisabled>
+    <paper-action-dialog id="result" style="width:80%" heading="Time: {{winnerTime}}" autoCloseDisabled>
       <div class="leaderboard">
         <template repeat="{{ user in leaderBoard }}">
           <div layout horizontal center style="height:40px">
@@ -155,12 +155,12 @@
         </template>
       </div>
       <paper-button affirmative autofocus on-tap={{resultOkClicked}}>OK</paper-button>
-    </paper-dialog>
-    <paper-dialog id="confirm_stop_challenge" heading="Quit Challenge?">
+    </paper-action-dialog>
+    <paper-action-dialog id="confirm_stop_challenge" heading="Quit Challenge?">
       <paper-button dismissive>Cancel</paper-button>
       <paper-button affirmative autofocus on-tap="{{confirmStopChallengeClicked}}">OK</paper-button>
-    </paper-dialog>
-    <paper-dialog id="start_challenge" heading="New Challenge" autoCloseDisabled>
+    </paper-action-dialog>
+    <paper-action-dialog id="start_challenge" heading="New Challenge" autoCloseDisabled>
       <p>{{startChallengeStatus}}</p>
       <div class="leaderboard">
         <template repeat="{{ user in startChallengeUsers }}">
@@ -171,14 +171,14 @@
         </template>
       </div>
       <paper-button affirmative autofocus on-tap="{{startChallengeClicked}}">{{startChallengeBtnLabel}}</paper-button>
-    </paper-dialog>
+    </paper-action-dialog>
     <paper-toast id="challenge_pending" duration="10000" text="Get ready, challenge starts soon..."></paper-toast>
-    <paper-dialog id="connection_error" heading="Error" autoCloseDisabled>
+    <paper-action-dialog id="connection_error" heading="Error" autoCloseDisabled>
       <p>Server communication error.</p>
       <p>{{errorMessage}}</p>
       <paper-button affirmative autofocus on-tap={{connectionRetryClicked}}>Retry</paper-button>
-    </paper-dialog>
-    <paper-dialog id="about_dialog" heading="About ChessChallenge">
+    </paper-action-dialog>
+    <paper-action-dialog id="about_dialog" heading="About ChessChallenge">
       <ul>
         <li>Make the checkmate move as fast as possible</li>
         <li>Challenge yourself or other users</li>
@@ -186,7 +186,7 @@
         <li>The fastest players are shown to the right</li>
       </ul>
       <paper-button affirmative autofocus>OK</paper-button>
-    </paper-dialog>
+    </paper-action-dialog>
   </template>
   <script type="application/dart" src="chess_challenge_board.dart"></script>
 </polymer-element>
